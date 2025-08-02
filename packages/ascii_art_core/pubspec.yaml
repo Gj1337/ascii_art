@@ -6,7 +6,8 @@ repository: https://github.com/Gj1337/ascii_art
 environment:
   sdk: ^3.0.0
 
-# dependencies:
+dependencies:
+  image: ^4.5.4
 
 dev_dependencies:
   lints: ^6.0.0

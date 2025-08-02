@@ -1,1 +1,1 @@
-export 'src/ascii_art_core_base.dart';
+export 'src/ascii_art_converter.dart';
