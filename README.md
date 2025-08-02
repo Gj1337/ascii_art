@@ -20,3 +20,4 @@ ascii_art_converter/
 ```
 
 
+<img width="2057" height="1977" alt="example" src="https://github.com/user-attachments/assets/e62fc144-eaaa-4638-84a1-915fd784b1b3" />
