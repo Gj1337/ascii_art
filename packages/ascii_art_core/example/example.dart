@@ -13,11 +13,8 @@ void main() {
       final converter = AsciiConverter();
 
       print('Char set $charSet \r\n');
-      final pixelArt = converter.convertImage(
-        imagePath,
-        width: width,
-        charset: charSet,
-      );
+      final pixelArt = converter.convertImage(imagePath,
+          width: width, charset: charSet, colorMode: ColorMode.ansi256);
 
       print(pixelArt);
     }
