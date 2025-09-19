@@ -1,0 +1,21 @@
+analyzer:
+  errors:
+    avoid_print: ignore
+include: package:lints/recommended.yaml
+linter:
+  rules:
+    - always_declare_return_types
+    - cancel_subscriptions
+    - close_sinks
+    - combinators_ordering
+    - comment_references
+    - invalid_case_patterns
+    - require_trailing_commas
+    - always_put_required_named_parameters_first
+    - always_use_package_imports
+    - avoid_relative_lib_imports
+    - avoid_print
+    - prefer_expression_function_bodies
+    - prefer_const_constructors
+    - prefer_const_literals_to_create_immutables
+    - prefer_const_declarations

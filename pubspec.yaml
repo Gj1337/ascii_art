@@ -1,13 +1,17 @@
-name: ascii_art_core
+name: ascii_art
 description: A starting point for Dart libraries or applications.
-version: 0.0.1
+version: 0.0.3
 repository: https://github.com/Gj1337/ascii_art
+
+executables:
+  ascii_art:
 
 environment:
   sdk: ^3.0.0
 
 dependencies:
   image: ^4.5.4
+  args: ^2.7.0
 
 dev_dependencies:
   lints: ^6.0.0

@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:ascii_art_core/ascii_art_core.dart';
+import 'package:ascii_art/ascii_art.dart';
 
-void main() {
+void main() async {
   print('🎨 ASCII Art Converter Example\r\n');
   final imagePath = pickImage();
   if (imagePath == null) return;
@@ -14,7 +14,7 @@ void main() {
       final converter = AsciiConverter();
 
       print('Char set $charSet \r\n');
-      final pixelArt = converter.convert(
+      final pixelArt = await converter.convert(
         imagePath,
         width: width,
         charset: charSet,
@@ -47,7 +47,7 @@ Uint8List? pickImage() {
 }
 
 int pickWidth() {
-  final defaultWidth = AsciiConverter.defaultWidth;
+  const defaultWidth = AsciiConverter.defaultWidth;
 
   stdout.write('Enter width (default $defaultWidth): ');
   final widthInput = stdin.readLineSync();
@@ -90,7 +90,8 @@ List<String> pickCharSets() {
   }
 
   stdout.write(
-      'Enter your choice (1-${charSets.length}, or press Enter for all): ');
+    'Enter your choice (1-${charSets.length}, or press Enter for all): ',
+  );
   final input = stdin.readLineSync();
 
   final choice = int.tryParse(input ?? '');

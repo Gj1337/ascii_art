@@ -1,13 +1,6 @@
 import 'dart:typed_data';
-import 'package:ascii_art_core/ascii_art_core.dart';
+import 'package:ascii_art/ascii_art.dart';
 import 'package:image/image.dart' as img;
-
-/// Defines the color output modes for ASCII art generation.
-enum ColorMode {
-  grayscale,
-  ansi256,
-  trueColor,
-}
 
 /// Converts images to ASCII art with customizable character sets and color modes.
 ///
@@ -30,29 +23,65 @@ class AsciiConverter {
   /// - [charset]: Characters to use, ordered from darkest to lightest
   /// - [invert]: If true, darker areas use denser characters
   /// - [charAspectRatio]: Adjusts for character dimensions (0.5 for typical monospace)
-  String convert(
+  Future<String> convert(
     Uint8List imageBytes, {
     int width = defaultWidth,
     String charset = defaultCharset,
     bool invert = defaultInvert,
     ColorMode colorMode = defaultColorMode,
     double charAspectRatio = defaultCharAspectRatio,
-  }) {
-    final image = _decodeImage(imageBytes);
-    final resized = _resizeImage(image, width, charAspectRatio);
-    return _convertToAscii(
-      resized,
+  }) async {
+    final buffer = StringBuffer();
+    final lineStream = convertStream(
+      imageBytes,
+      width: width,
       charset: charset,
       invert: invert,
       colorMode: colorMode,
+      charAspectRatio: charAspectRatio,
     );
+
+    await lineStream.forEach(buffer.write);
+
+    return buffer.toString();
+  }
+
+  Stream<String> convertStream(
+    Uint8List imageBytes, {
+    int width = defaultWidth,
+    String charset = defaultCharset,
+    bool invert = defaultInvert,
+    ColorMode colorMode = defaultColorMode,
+    double charAspectRatio = defaultCharAspectRatio,
+  }) async* {
+    final image = _decodeImage(imageBytes);
+    final resized = _resizeImage(image, width, charAspectRatio);
+
+    final resetCode = _getResetCode(colorMode);
+
+    for (var y = 0; y < resized.height; y++) {
+      final buffer = StringBuffer();
+
+      for (var x = 0; x < resized.width; x++) {
+        final pixel = resized.getPixel(x, y);
+        final brightness = img.getLuminance(pixel);
+        final char = _mapBrightnessToChar(brightness.toInt(), charset, invert);
+        final colorCode = _getColorCode(pixel, colorMode);
+
+        buffer.write('$colorCode$char');
+      }
+      buffer.write('$resetCode\r\n');
+
+      yield buffer.toString();
+    }
   }
 
   img.Image _decodeImage(Uint8List bytes) {
     final image = img.decodeImage(bytes);
     if (image == null) {
-      throw FormatException('Unable to decode image data');
+      throw const FormatException('Unable to decode image data');
     }
+
     return image;
   }
 
@@ -60,33 +89,14 @@ class AsciiConverter {
   img.Image _resizeImage(img.Image image, int width, double charAspectRatio) {
     final aspectRatio = image.height / image.width;
     final targetHeight = (width * aspectRatio * charAspectRatio).round();
-    return img.copyResize(image, width: width, height: targetHeight);
-  }
 
-  String _convertToAscii(
-    img.Image image, {
-    required String charset,
-    required bool invert,
-    required ColorMode colorMode,
-  }) {
-    final buffer = StringBuffer();
-    for (var y = 0; y < image.height; y++) {
-      for (var x = 0; x < image.width; x++) {
-        final pixel = image.getPixel(x, y);
-        final brightness = img.getLuminance(pixel);
-        final char = _mapBrightnessToChar(brightness.toInt(), charset, invert);
-        final colorCode = _getColorCode(pixel, colorMode);
-        buffer.write('$colorCode$char');
-      }
-      final resetCode = _getResetCode(colorMode);
-      buffer.write('$resetCode\n');
-    }
-    return buffer.toString();
+    return img.copyResize(image, width: width, height: targetHeight);
   }
 
   String _mapBrightnessToChar(int brightness, String charset, bool invert) {
     final targetBrightness = invert ? 255 - brightness : brightness;
     final index = (targetBrightness * (charset.length - 1)) ~/ 255;
+
     return charset[index.clamp(0, charset.length - 1)];
   }
 
@@ -106,6 +116,7 @@ class AsciiConverter {
     final g = (pixel.g.toInt() * 5 / 255).round();
     final b = (pixel.b.toInt() * 5 / 255).round();
     final color = 16 + 36 * r + 6 * g + b;
+
     return '\x1b[38;5;${color}m';
   }
 
