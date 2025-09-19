@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:ascii_art_core/ascii_art_core.dart';
 
 void main() {
@@ -13,8 +14,12 @@ void main() {
       final converter = AsciiConverter();
 
       print('Char set $charSet \r\n');
-      final pixelArt = converter.convertImage(imagePath,
-          width: width, charset: charSet, colorMode: ColorMode.ansi256);
+      final pixelArt = converter.convert(
+        imagePath,
+        width: width,
+        charset: charSet,
+        colorMode: ColorMode.ansi256,
+      );
 
       print(pixelArt);
     }
@@ -23,7 +28,7 @@ void main() {
   }
 }
 
-String? pickImage() {
+Uint8List? pickImage() {
   stdout.write('Enter image path: ');
   final imagePath = stdin.readLineSync()?.trim();
 
@@ -32,7 +37,13 @@ String? pickImage() {
     return null;
   }
 
-  return imagePath;
+  final file = File(imagePath);
+  if (!file.existsSync()) {
+    throw FileSystemException('Image file not found', imagePath);
+  }
+  final bytes = file.readAsBytesSync();
+
+  return bytes;
 }
 
 int pickWidth() {

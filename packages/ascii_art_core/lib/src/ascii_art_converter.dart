@@ -1,133 +1,119 @@
-import 'dart:io';
-import 'package:ascii_art_core/src/char_set.dart';
+import 'dart:typed_data';
+import 'package:ascii_art_core/ascii_art_core.dart';
 import 'package:image/image.dart' as img;
 
+/// Defines the color output modes for ASCII art generation.
 enum ColorMode {
   grayscale,
   ansi256,
+  trueColor,
 }
 
+/// Converts images to ASCII art with customizable character sets and color modes.
+///
+/// Example:
+/// ```dart
+/// final converter = AsciiConverter();
+/// final asciiArt = converter.convert(imageBytes, width: 100);
+/// ```
 class AsciiConverter {
-  /// Characters in most fonts are taller than they are wide,
-  /// so ASCII art looks stretched vertically if not corrected.
-  /// This factor (~0.5) compensates for that difference.
-  static const double charAspectRatio = 0.5;
+  /// Character aspect ratio - most monospace fonts are ~2x taller than wide
+  static const defaultCharAspectRatio = 0.5;
+  static const defaultWidth = 80;
+  static const defaultCharset = CharSet.standart;
+  static const defaultInvert = true;
+  static const defaultColorMode = ColorMode.grayscale;
 
-  /// Default width of ASCII art (in characters).
-  static const int defaultWidth = 80;
-
-  /// Default charset for brightness mapping.
-  static const String defaultCharset = CharSet.standart;
-
-  /// Whether to invert brightness mapping by default.
-  static const bool defaultInvert = true;
-
-  /// Default color mode.
-  static const ColorMode defaultColorMode = ColorMode.grayscale;
-
-  /// Converts an image file at [imagePath] into ASCII art.
+  /// Converts image bytes into ASCII art.
   ///
-  /// - [width]: target ASCII art width (characters).
-  /// - [charset]: set of characters used for brightness mapping.
-  /// - [invert]: flips brightness mapping (dark <-> light).
-  /// - [colorMode]: determines color output format.
-  String convertImage(
-    String imagePath, {
+  /// - [width]: Output width in characters
+  /// - [charset]: Characters to use, ordered from darkest to lightest
+  /// - [invert]: If true, darker areas use denser characters
+  /// - [charAspectRatio]: Adjusts for character dimensions (0.5 for typical monospace)
+  String convert(
+    Uint8List imageBytes, {
     int width = defaultWidth,
     String charset = defaultCharset,
     bool invert = defaultInvert,
     ColorMode colorMode = defaultColorMode,
-    double charAspectRatio = charAspectRatio,
+    double charAspectRatio = defaultCharAspectRatio,
   }) {
-    final image = _loadImage(imagePath);
+    final image = _decodeImage(imageBytes);
     final resized = _resizeImage(image, width, charAspectRatio);
-
     return _convertToAscii(
       resized,
-      charset,
+      charset: charset,
       invert: invert,
       colorMode: colorMode,
     );
   }
 
-  img.Image _loadImage(String imagePath) {
-    final file = File(imagePath);
-    if (!file.existsSync()) {
-      throw FileSystemException('Image file not found', imagePath);
-    }
-    final bytes = file.readAsBytesSync();
+  img.Image _decodeImage(Uint8List bytes) {
     final image = img.decodeImage(bytes);
     if (image == null) {
-      throw FormatException('Unable to decode image: $imagePath');
+      throw FormatException('Unable to decode image data');
     }
     return image;
   }
 
-  img.Image _resizeImage(
-    img.Image image,
-    int width,
-    double charAspectRatio,
-  ) {
+  /// Resizes image maintaining aspect ratio, adjusted for character dimensions
+  img.Image _resizeImage(img.Image image, int width, double charAspectRatio) {
     final aspectRatio = image.height / image.width;
     final targetHeight = (width * aspectRatio * charAspectRatio).round();
     return img.copyResize(image, width: width, height: targetHeight);
   }
 
   String _convertToAscii(
-    img.Image image,
-    String charset, {
-    ColorMode colorMode = ColorMode.grayscale,
-    bool invert = defaultInvert,
+    img.Image image, {
+    required String charset,
+    required bool invert,
+    required ColorMode colorMode,
   }) {
-    final asciiImage = StringBuffer();
+    final buffer = StringBuffer();
     for (var y = 0; y < image.height; y++) {
       for (var x = 0; x < image.width; x++) {
         final pixel = image.getPixel(x, y);
         final brightness = img.getLuminance(pixel);
-        final char =
-            _mapBrightnessToChar(brightness.toInt(), charset, invert: invert);
-
+        final char = _mapBrightnessToChar(brightness.toInt(), charset, invert);
         final colorCode = _getColorCode(pixel, colorMode);
-
-        asciiImage.write('$colorCode$char');
+        buffer.write('$colorCode$char');
       }
-
-      final colorReset = switch (colorMode) {
-        ColorMode.grayscale => '',
-        ColorMode.ansi256 => '\x1b[0m',
-      };
-
-      asciiImage.write('$colorReset\n');
+      final resetCode = _getResetCode(colorMode);
+      buffer.write('$resetCode\n');
     }
-    return asciiImage.toString();
+    return buffer.toString();
   }
 
-  String _mapBrightnessToChar(int brightness, String charset,
-      {required bool invert}) {
+  String _mapBrightnessToChar(int brightness, String charset, bool invert) {
     final targetBrightness = invert ? 255 - brightness : brightness;
     final index = (targetBrightness * (charset.length - 1)) ~/ 255;
     return charset[index.clamp(0, charset.length - 1)];
   }
 
-  String _getColorCode(img.Color pixel, ColorMode colorMode) {
+  String _getColorCode(img.Color pixel, ColorMode colorMode) =>
+      switch (colorMode) {
+        ColorMode.grayscale => '',
+        ColorMode.ansi256 => _getAnsi256Color(pixel),
+        ColorMode.trueColor => _getTrueColor(pixel)
+      };
+
+  String _getResetCode(ColorMode colorMode) =>
+      colorMode == ColorMode.grayscale ? '' : '\x1b[0m';
+
+  /// Maps RGB to ANSI 256-color using 6x6x6 color cube
+  String _getAnsi256Color(img.Color pixel) {
+    final r = (pixel.r.toInt() * 5 / 255).round();
+    final g = (pixel.g.toInt() * 5 / 255).round();
+    final b = (pixel.b.toInt() * 5 / 255).round();
+    final color = 16 + 36 * r + 6 * g + b;
+    return '\x1b[38;5;${color}m';
+  }
+
+  String _getTrueColor(img.Color pixel) {
     final r = pixel.r.toInt();
     final g = pixel.g.toInt();
     final b = pixel.b.toInt();
 
-    switch (colorMode) {
-      case ColorMode.ansi256:
-        return _getAnsi256Color(r, g, b);
-      case ColorMode.grayscale:
-        return '';
-    }
-  }
-
-  String _getAnsi256Color(int r, int g, int b) {
-    final r6 = (r * 5 / 255).round();
-    final g6 = (g * 5 / 255).round();
-    final b6 = (b * 5 / 255).round();
-    final color = 16 + 36 * r6 + 6 * g6 + b6;
-
-    return '\x1b[38;5;${color}m';
+    return '\x1b[38;2;$r;$g;${b}m';
   }
 }
