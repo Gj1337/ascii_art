@@ -8,4 +8,8 @@
 
 ## 0.0.3
 
-- Add CLI executable 
+- Add CLI executable
+
+## 0.0.4
+
+- Update arguments syntax 

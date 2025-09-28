@@ -92,10 +92,10 @@ ascii_art --help
 | `-i, --input`       | Input image file path                                | required  |
 | `-o, --output`      | Output file path (optional, prints to stdout)         | stdout    |
 | `-w, --width`       | Output width (in characters)                         | `80`      |
-| `-c, --charset`     | Character set (preset name or custom string)          | standard  |
-| `--color`           | Output color mode: grayscale, ansi256, truecolor      | grayscale |
+| `-s, --charset`     | Character set (preset name or custom string)          | standard  |
+| `-c, --color`           | Output color mode: grayscale, ansi256, trueColor      | grayscale |
 | `-a, --aspect-ratio`| Character aspect ratio (font width/height ratio)      | `0.5`     |
-| `--invert`          | Invert brightness mapping (dark ↔ light)              | true      |
+| `--[no-]invert `          | Invert brightness mapping (dark ↔ light)              | true      |
 | `-h, --help`        | Show help message                                    |           |
 
 ---

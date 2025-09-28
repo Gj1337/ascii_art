@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:ascii_art/ascii_art.dart';
 
+const toolName = 'ascii_art';
+
 const charPresets = <String, String>{
   'standard': CharSet.standart,
   'blocks': CharSet.blocks,
@@ -28,8 +30,18 @@ const charPresets = <String, String>{
   'texture': CharSet.texture,
 };
 
+typedef ImageProcessArguments = ({
+  File file,
+  String? outputPath,
+  int width,
+  String charSet,
+  ColorMode colorMode,
+  double aspectRatio,
+  bool invert
+});
+
 void main(List<String> arguments) async {
-  final parser = ArgParser()
+  final parser = ArgParser(usageLineLength: 80)
     ..addOption(
       'input',
       abbr: 'i',
@@ -48,18 +60,6 @@ void main(List<String> arguments) async {
       defaultsTo: '80',
     )
     ..addOption(
-      'charset',
-      abbr: 'c',
-      help:
-          'Character set to use. Use one of predefined preset or provide custom characters',
-      defaultsTo: 'standard',
-    )
-    ..addOption(
-      'color',
-      help: 'Color mode: grayscale, ansi256, truecolor',
-      defaultsTo: 'grayscale',
-    )
-    ..addOption(
       'char-aspect-ratio',
       abbr: 'a',
       help: 'Character aspect ratio',
@@ -67,8 +67,29 @@ void main(List<String> arguments) async {
     )
     ..addFlag(
       'invert',
-      help: 'Invert brightness (lighter areas become denser characters)',
+      help: 'Invert brightness (lighter areas become denser characters).',
       defaultsTo: true,
+    )
+    ..addOption(
+      'color',
+      abbr: 'c',
+      help: 'Color mode',
+      defaultsTo: 'grayscale',
+      allowed: ColorMode.values
+          .map((mode) => mode.toString().replaceFirst('ColorMode.', '')),
+      allowedHelp: {
+        'grayscale': 'No colors',
+        'ansi256': '256-color ANSI escape codes',
+        'trueColor': '24-bit RGB colors',
+      },
+    )
+    ..addOption(
+      'charset',
+      abbr: 's',
+      help:
+          'Character set to use. Use one of predefined preset or provide custom characters',
+      defaultsTo: 'standard',
+      allowedHelp: charPresets,
     )
     ..addFlag(
       'help',
@@ -85,33 +106,57 @@ void main(List<String> arguments) async {
       return;
     }
 
-    await _processImage(results);
+    final imageProcessArguments = _processArguments(results);
+
+    await _processImage(imageProcessArguments);
   } catch (e) {
-    // ignore: avoid_print
     print('Error: $e\r\n'
-        'Call ascii_art --help to see doc');
+        'Call $toolName --help to see doc');
 
     exit(1);
   }
 }
 
-Future<void> _processImage(ArgResults results) async {
-  final inputPath = results['input'] as String;
-  final outputPath = results['output'] as String?;
-  final width = int.parse(results['width'] as String);
-  final charsetName = results['charset'] as String;
-  final colorModeName = results['color'] as String;
-  final aspectRatio = double.parse(results['char-aspect-ratio'] as String);
-  final invert = results['invert'] as bool;
+ImageProcessArguments _processArguments(ArgResults arguments) {
+  final inputPath = (arguments['input'] as String);
+  final outputPath = arguments['output'] as String?;
+  final width = int.parse(arguments['width'] as String);
+  final charsetName = arguments['charset'] as String;
+  final colorModeName = arguments['color'] as String;
+  final aspectRatio = double.parse(arguments['char-aspect-ratio'] as String);
+  final invert = arguments['invert'] as bool;
 
-  final inputFile = File(inputPath);
-  if (!inputFile.existsSync()) {
+  final file = File(inputPath);
+  if (!file.existsSync()) {
     throw ArgumentError('Input file does not exist: $inputPath');
   }
-
-  final charset = charPresets[charsetName] ?? charsetName;
+  final charSet = charPresets[charsetName] ??
+      charsetName; //substring to get rid of quotes ""
   final colorMode = _parseColorMode(colorModeName);
-  final imageBytes = await inputFile.readAsBytes();
+
+  return (
+    file: file,
+    outputPath: outputPath,
+    width: width,
+    charSet: charSet,
+    colorMode: colorMode,
+    aspectRatio: aspectRatio,
+    invert: invert
+  );
+}
+
+Future<void> _processImage(ImageProcessArguments argmunents) async {
+  final (
+    :file,
+    :outputPath,
+    :width,
+    :charSet,
+    :colorMode,
+    :aspectRatio,
+    :invert
+  ) = argmunents;
+
+  final imageBytes = await file.readAsBytes();
   final converter = AsciiConverter();
 
   IOSink? outputSink;
@@ -120,19 +165,19 @@ Future<void> _processImage(ArgResults results) async {
   }
 
   try {
-    await converter
-        .convertStream(
-          imageBytes,
-          width: width,
-          charset: charset,
-          invert: invert,
-          colorMode: colorMode,
-          charAspectRatio: aspectRatio,
-        )
-        .forEach(
-          (line) =>
-              outputSink != null ? outputSink.write(line) : stdout.write(line),
-        );
+    final convertStream = converter.convertStream(
+      imageBytes,
+      width: width,
+      charset: charSet,
+      invert: invert,
+      colorMode: colorMode,
+      charAspectRatio: aspectRatio,
+    );
+
+    await convertStream.forEach(
+      (line) =>
+          outputSink != null ? outputSink.write(line) : stdout.write(line),
+    );
 
     if (outputPath != null) {
       print('ASCII art saved to: $outputPath');
@@ -150,19 +195,8 @@ ColorMode _parseColorMode(String input) => switch (input.toLowerCase()) {
     };
 
 void _printHelp(ArgParser parser) => print(
-      'ASCII Art Converter\r\n'
-      '\r\n'
       'Converts images to ASCII art with customizable character sets and colors.\r\n'
       '\r\n'
       'Options:\r\n'
-      '${parser.usage}\r\n'
-      '\r\n'
-      'Available character sets:\r\n'
-      '${charPresets.keys.map((key) => '  $key ${charPresets[key]}').join('\r\n')}\r\n'
-      '\r\n'
-      'Color modes:\r\n'
-      '  grayscale  - No colors (default)\r\n'
-      '  ansi256    - 256-color ANSI escape codes\r\n'
-      '  truecolor  - 24-bit RGB colors\r\n'
-      '\r\n',
+      '${parser.usage}\r\n',
     );
