@@ -13,6 +13,10 @@ A Dart-based ASCII art converter that transforms images into ASCII art. Availabl
 
 <img width="2057" height="1977" alt="example" src="https://github.com/user-attachments/assets/e62fc144-eaaa-4638-84a1-915fd784b1b3" />
 
+## 📖 How it works
+
+Check out the [the algorithm](./doc/how_it_works.md) for details on how each pixel is processed and mapped to ASCII characters.
+
 ## 🚀 Installation
 
 ### As a Library
