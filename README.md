@@ -1,4 +1,4 @@
-# 🎨 ASCII Art Converter
+# 🎨 ASCII Art Converter [![Analyze][analyze-badge]][analyze-link] ![version][version-badge]
 
 A Dart-based ASCII art converter that transforms images into ASCII art. Available as a reusable library and command-line tool.
 
@@ -69,8 +69,8 @@ ascii_art -i cat.png -o cat.txt
 ascii_art -i cat.png -w 120
 
 # Apply a different character set
-ascii_art -i cat.png -c blocks
-ascii_art -i cat.png -c "@#*+=-:. "   # Custom charset string
+ascii_art -i cat.png -s blocks
+ascii_art -i cat.png -s "@#*+=-:. "   # Custom charset string
 
 # Invert brightness mapping
 ascii_art -i cat.png --invert=false
@@ -79,7 +79,7 @@ ascii_art -i cat.png --invert=false
 ascii_art -i cat.png --color ansi256
 
 # Enable true color (24-bit RGB) mode
-ascii_art -i cat.png --color truecolor
+ascii_art -i cat.png --color trueColor
 
 # Adjust character aspect ratio (for fonts with different proportions)
 ascii_art -i cat.png -a 0.6
@@ -124,3 +124,7 @@ ascii_art --help
 └── README.md
 ```
 
+<!-- Links -->
+[analyze-badge]: https://github.com/Gj1337/ascii_art/actions/workflows/analyze.yaml/badge.svg
+[analyze-link]: https://github.com/Gj1337/ascii_art/actions/workflows/analyze.yaml
+[version-badge]:https://img.shields.io/badge/version-0.0.4-blue
