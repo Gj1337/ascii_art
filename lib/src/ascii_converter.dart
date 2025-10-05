@@ -7,22 +7,74 @@ import 'package:image/image.dart' as img;
 /// Example:
 /// ```dart
 /// final converter = AsciiConverter();
-/// final asciiArt = converter.convert(imageBytes, width: 100);
+/// final asciiArt = await converter.convert(
+///   imageBytes,
+///   width: 100,
+///   charset: CharSet.blocks,
+///   colorMode: ColorMode.ansi256,
+/// );
+/// print(asciiArt);
+/// ```
+/// Example with stream:
+/// ```dart
+/// final converter = AsciiConverter();
+/// final stream = converter.convertStream(imageBytes, width: 80);
+/// await for (final line in stream) {
+///   stdout.write(line);
+/// }
 /// ```
 class AsciiConverter {
-  /// Character aspect ratio - most monospace fonts are ~2x taller than wide
+  /// Default character aspect ratio for monospace fonts.
+  ///
+  /// Most monospace fonts are approximately 2x taller than they are wide,
+  /// so the default ratio is 0.5 to maintain proper image proportions.
   static const defaultCharAspectRatio = 0.5;
+
+  /// Default output width in characters.
+  ///
+  /// Set to 80 characters, which fits most terminal windows comfortably.
   static const defaultWidth = 80;
+
+  /// Default character set for conversion.
+  ///
+  /// Uses [CharSet.standart] which provides good detail and contrast.
   static const defaultCharset = CharSet.standart;
+
+  /// Default invert setting.
+  ///
+  /// When true, darker image areas use denser characters. This typically
+  /// produces more natural-looking results for most images.
   static const defaultInvert = true;
+
+  /// Default color mode for conversion.
+  ///
+  /// Uses [ColorMode.grayscale] for maximum compatibility.
   static const defaultColorMode = ColorMode.grayscale;
 
-  /// Converts image bytes into ASCII art.
+  // ignore: public_member_api_docs
+  AsciiConverter();
+
+  /// Converts image bytes into ASCII art as a complete string.
   ///
-  /// - [width]: Output width in characters
-  /// - [charset]: Characters to use, ordered from darkest to lightest
-  /// - [invert]: If true, darker areas use denser characters
-  /// - [charAspectRatio]: Adjusts for character dimensions (0.5 for typical monospace)
+  /// Parameters:
+  /// - [imageBytes]: The raw bytes of the image to convert. Supports common
+  ///   formats like PNG, JPEG, GIF, BMP, etc.
+  /// - [width]: Output width in characters. The height is calculated automatically
+  ///   to maintain the image's aspect ratio. Default value is [defaultWidth].
+  /// - [charset]: String of characters ordered from darkest to lightest.
+  ///   Use predefined sets from [CharSet] or provide a custom string
+  ///   where symbols are ordered from darker to lighter.
+  ///   Default value is [defaultCharset].
+  /// - [invert]: If true, darker areas use denser characters.
+  ///   Suitable for black-white pictures.
+  /// - [colorMode]: Determines how colors are represented. See [ColorMode]
+  ///   for available options. Default value is [defaultColorMode]
+  /// - [charAspectRatio]: Ratio to adjust for character dimensions. Use 0.5
+  ///   for typical monospace fonts (characters are twice as tall as wide).
+  ///
+  /// Throws [FormatException] if the image data cannot be decoded.
+  ///
+  /// For more flexible control, consider using [convertStream] instead.
   Future<String> convert(
     Uint8List imageBytes, {
     int width = defaultWidth,
@@ -46,6 +98,28 @@ class AsciiConverter {
     return buffer.toString();
   }
 
+  /// Converts image bytes into ASCII art as a stream of lines.
+  ///
+  /// Parameters:
+  /// - [imageBytes]: The raw bytes of the image to convert. Supports common
+  ///   formats like PNG, JPEG, GIF, BMP, etc.
+  /// - [width]: Output width in characters. The height is calculated automatically
+  ///   to maintain the image's aspect ratio. Default value is [defaultWidth].
+  /// - [charset]: String of characters ordered from darkest to lightest.
+  ///   Use predefined sets from [CharSet] or provide a custom string
+  ///   where symbols are ordered from darker to lighter.
+  ///   Default value is [defaultCharset].
+  /// - [invert]: If true, darker areas use denser characters.
+  ///   Suitable for black-white pictures.
+  /// - [colorMode]: Determines how colors are represented. See [ColorMode]
+  ///   for available options. Default value is [defaultColorMode]
+  /// - [charAspectRatio]: Ratio to adjust for character dimensions. Use 0.5
+  ///   for typical monospace fonts (characters are twice as tall as wide).
+  ///
+  /// Returns a [Stream] of strings, where each string represents one line
+  /// of ASCII art (including the newline character and any color codes).
+  ///
+  /// Throws [FormatException] if the image data cannot be decoded.
   Stream<String> convertStream(
     Uint8List imageBytes, {
     int width = defaultWidth,
