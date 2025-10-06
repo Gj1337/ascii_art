@@ -4,22 +4,30 @@ import 'package:ascii_art/ascii_art.dart';
 import 'package:image/image.dart' as img;
 
 void main() {
-  group('AsciiConverter', () {
-    late final AsciiConverter converter;
-
-    setUpAll(() {
-      converter = AsciiConverter();
-    });
-
-    group('Image Decoding', () {
-      test('Convert png image', () async {
+  group('AsciiArtConverter', () {
+    group('Convert image', () {
+      test('Convert png image by convert method', () async {
         final image = _createSolidColorImage(100, 100, r: 85, g: 170, b: 255);
         final bytes = Uint8List.fromList(img.encodePng(image));
 
-        final result = await converter.convert(bytes, width: 5);
+        final result = await const AsciiArtConverter(width: 5).convert(
+          bytes,
+        );
 
         expect(result, isNotEmpty);
         expect(result.split('\r\n').length, greaterThan(0));
+      });
+
+      test('Convert png image by stream method', () async {
+        final image = _createSolidColorImage(100, 100, r: 85, g: 170, b: 255);
+        final bytes = Uint8List.fromList(img.encodePng(image));
+
+        await const AsciiArtConverter(width: 5).convertStream(bytes).forEach(
+          (line) {
+            expect(line, isNotEmpty);
+            expect(line, endsWith('\r\n'));
+          },
+        );
       });
     });
 
@@ -31,19 +39,20 @@ void main() {
           final image = _createSolidColorImage(1, 1, r: 0, g: 0, b: 0);
           final bytes = Uint8List.fromList(img.encodePng(image));
 
-          final result = await converter.convert(
-            bytes,
+          final result = await const AsciiArtConverter(
             width: 1,
             charset: charSet,
             invert: false,
-          );
+          ).convert(bytes);
+
           expect(result.trim(), equals(charSet[0]));
 
-          final resultInverted = await converter.convert(
-            bytes,
+          final resultInverted = await const AsciiArtConverter(
             width: 1,
             charset: charSet,
             invert: true,
+          ).convert(
+            bytes,
           );
 
           expect(resultInverted.trim(), equals(charSet[charSet.length - 1]));
@@ -53,19 +62,22 @@ void main() {
           final image = _createSolidColorImage(1, 1, r: 255, g: 255, b: 255);
           final bytes = Uint8List.fromList(img.encodePng(image));
 
-          final result = await converter.convert(
-            bytes,
+          final result = await const AsciiArtConverter(
             width: 1,
             charset: charSet,
             invert: false,
+          ).convert(
+            bytes,
           );
+
           expect(result.trim(), equals(charSet[charSet.length - 1]));
 
-          final resultInverted = await converter.convert(
-            bytes,
+          final resultInverted = await const AsciiArtConverter(
             width: 1,
             charset: charSet,
             invert: true,
+          ).convert(
+            bytes,
           );
 
           expect(resultInverted.trim(), equals(charSet[0]));
@@ -84,21 +96,24 @@ void main() {
             final gradientBytes =
                 Uint8List.fromList(img.encodePng(gradientImage));
 
-            final result = await converter.convert(
-              gradientBytes,
+            final result = await const AsciiArtConverter(
               width: imageWidth,
               charset: charSet,
               invert: false,
-            );
-            expect(result, matches(RegExp('[$charSet\\s]')));
-            // expect(isSubsequence(result, charSet), isTrue);
-
-            final resultInverted = await converter.convert(
+            ).convert(
               gradientBytes,
+            );
+
+            expect(result, matches(RegExp('[$charSet\\s]')));
+
+            final resultInverted = await const AsciiArtConverter(
               width: imageWidth,
               charset: charSet,
               invert: true,
+            ).convert(
+              gradientBytes,
             );
+
             expect(
               resultInverted,
               matches(RegExp('[${charSet.split('').reversed.join()}\\s]')),
@@ -113,7 +128,7 @@ void main() {
         final image = _createSolidColorImage(100, 100, r: 85, g: 170, b: 255);
         final bytes = Uint8List.fromList(img.encodePng(image));
 
-        final result = await converter.convert(bytes, width: 10);
+        final result = await const AsciiArtConverter(width: 10).convert(bytes);
         final lines = result.split('\r\n').where((l) => l.isNotEmpty).toList();
 
         expect(lines.first.length, equals(10));
@@ -125,14 +140,15 @@ void main() {
         const width = 20;
         const charAspectRatio = 0.5;
 
-        final result = await converter.convert(
-          bytes,
+        final result = await const AsciiArtConverter(
           width: width,
           charAspectRatio: charAspectRatio,
+        ).convert(
+          bytes,
         );
         final lines = result.split('\r\n').where((l) => l.isNotEmpty).toList();
-
         final expectedHeight = (width * charAspectRatio).round();
+
         expect(lines.length, equals(expectedHeight));
       });
 
@@ -141,7 +157,9 @@ void main() {
         final bytes = Uint8List.fromList(img.encodePng(image));
         const width = 20;
 
-        final result = await converter.convert(bytes, width: width);
+        final result = await const AsciiArtConverter(
+          width: width,
+        ).convert(bytes);
         final lines = result.split('\r\n').where((l) => l.isNotEmpty).toList();
 
         expect(lines.length, lessThan(width));
@@ -153,10 +171,11 @@ void main() {
         final image = _createSolidColorImage(2, 2, r: 255, g: 0, b: 0);
         final bytes = Uint8List.fromList(img.encodePng(image));
 
-        final result = await converter.convert(
-          bytes,
+        final result = await const AsciiArtConverter(
           width: 2,
           colorMode: ColorMode.grayscale,
+        ).convert(
+          bytes,
         );
 
         expect(result, isNot(contains('\x1b[')));
@@ -166,10 +185,11 @@ void main() {
         final image = _createSolidColorImage(2, 2, r: 255, g: 0, b: 0);
         final bytes = Uint8List.fromList(img.encodePng(image));
 
-        final result = await converter.convert(
-          bytes,
+        final result = await const AsciiArtConverter(
           width: 2,
           colorMode: ColorMode.ansi256,
+        ).convert(
+          bytes,
         );
 
         expect(result, contains('\x1b[38;5;196m'));
@@ -181,10 +201,11 @@ void main() {
         final image = _createSolidColorImage(2, 2, r: 128, g: 64, b: 32);
         final bytes = Uint8List.fromList(img.encodePng(image));
 
-        final result = await converter.convert(
-          bytes,
+        final result = await const AsciiArtConverter(
           width: 2,
           colorMode: ColorMode.trueColor,
+        ).convert(
+          bytes,
         );
 
         expect(result, contains('\x1b[38;2;$r;$g;${b}m'));
@@ -195,13 +216,13 @@ void main() {
         final image = _createSolidColorImage(100, 100, r: 85, g: 170, b: 255);
         final bytes = Uint8List.fromList(img.encodePng(image));
 
-        final result = await converter.convert(
+        final result = await const AsciiArtConverter(
+                width: 3, colorMode: ColorMode.ansi256)
+            .convert(
           bytes,
-          width: 3,
-          colorMode: ColorMode.ansi256,
         );
-
         final lines = result.split('\r\n').where((l) => l.isNotEmpty).toList();
+
         for (final line in lines) {
           expect(line, contains('\x1b[0m'));
         }

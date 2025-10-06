@@ -13,3 +13,7 @@
 ## 0.0.4
 
 - Update arguments syntax 
+
+## 0.0.5
+
+- Add Converter state

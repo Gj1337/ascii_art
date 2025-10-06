@@ -157,7 +157,13 @@ Future<void> _processImage(ImageProcessArguments argmunents) async {
   ) = argmunents;
 
   final imageBytes = await file.readAsBytes();
-  final converter = AsciiConverter();
+  final converter = AsciiArtConverter(
+    width: width,
+    charset: charSet,
+    invert: invert,
+    colorMode: colorMode,
+    charAspectRatio: aspectRatio,
+  );
 
   IOSink? outputSink;
   if (outputPath != null) {
@@ -165,19 +171,10 @@ Future<void> _processImage(ImageProcessArguments argmunents) async {
   }
 
   try {
-    final convertStream = converter.convertStream(
-      imageBytes,
-      width: width,
-      charset: charSet,
-      invert: invert,
-      colorMode: colorMode,
-      charAspectRatio: aspectRatio,
-    );
-
-    await convertStream.forEach(
-      (line) =>
-          outputSink != null ? outputSink.write(line) : stdout.write(line),
-    );
+    await converter.convertStream(imageBytes).forEach(
+          (line) =>
+              outputSink != null ? outputSink.write(line) : stdout.write(line),
+        );
 
     if (outputPath != null) {
       print('ASCII art saved to: $outputPath');
