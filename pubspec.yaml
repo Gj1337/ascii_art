@@ -1,10 +1,20 @@
-name: ascii_art
-description: A starting point for Dart libraries or applications.
-version: 0.0.4
-repository: https://github.com/Gj1337/ascii_art
+name: ascii_art_converter
+description: Converts images to ASCII art with customizable character sets and colors.
+version: 1.0.0
+repository: https://github.com/Gj1337/ascii_art_converter
+issue_tracker: https://github.com/Gj1337/ascii_art_converter/issues
+topics:
+  - ascii
+  - art
+  - image-processing
+  - converter
+  - cli
+screenshots:
+  - description: "Example ASCII art generated from an image."
+    path: doc/conversion_example.png 
 
 executables:
-  ascii_art:
+  ascii_art: cli_tool
 
 environment:
   sdk: ^3.0.0

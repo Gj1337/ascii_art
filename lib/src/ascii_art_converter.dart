@@ -1,5 +1,6 @@
 import 'dart:typed_data';
-import 'package:ascii_art/ascii_art.dart';
+import 'package:ascii_art_converter/ascii_art_converter.dart';
+
 import 'package:image/image.dart' as img;
 
 /// Converts images to ASCII art with customizable character sets and color modes.

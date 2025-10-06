@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:args/args.dart';
-import 'package:ascii_art/ascii_art.dart';
+import 'package:ascii_art_converter/ascii_art_converter.dart';
 
 const toolName = 'ascii_art';
 

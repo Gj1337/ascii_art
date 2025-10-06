@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:ascii_art/ascii_art.dart';
+import 'package:ascii_art_converter/ascii_art_converter.dart';
 
 void main() async {
   const filePath = 'image.png'; //Change to a valid file path

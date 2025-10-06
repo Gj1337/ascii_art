@@ -1,4 +1,5 @@
-# 🎨 ASCII Art Converter [![Analyze][analyze-badge]][analyze-link] ![version][version-badge]
+# 🎨 ASCII Art Converter [![Analyze][analyze-badge]][analyze-link] [![pub package][pub-icon]](pub-link)
+
 
 A Dart-based ASCII art converter that transforms images into ASCII art. Available as a reusable library and command-line tool.
 
@@ -15,7 +16,7 @@ A Dart-based ASCII art converter that transforms images into ASCII art. Availabl
 
 ## 📖 How it works
 
-Check out the [the algorithm](./doc/how_it_works.md) for details on how each pixel is processed and mapped to ASCII characters.
+Check out the [the algorithm](https://github.com/Gj1337/ascii_art_converter/blob/9156cecfbedd814266f37805bbc74e478c51ae4e/doc/how_it_works.md) for details on how each pixel is processed and mapped to ASCII characters.
 
 ## 🚀 Installation
 
@@ -23,15 +24,13 @@ Check out the [the algorithm](./doc/how_it_works.md) for details on how each pix
 Add the package to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  ascii_art:
-    git:
-      url: https://github.com/Gj1337/ascii_art.git
+  ascii_art_converter: ^1.0.0
 ```
 
 ### As a CLI Tool
 Activate it globally:
 ```bash
-dart pub global activate --source git https://github.com/Gj1337/ascii_art.git
+dart pub global activate ascii_art_converter
 ```
 
 ---
@@ -41,7 +40,7 @@ dart pub global activate --source git https://github.com/Gj1337/ascii_art.git
 ### Library Example
 ```dart
 import 'dart:io';
-import 'package:ascii_art/ascii_art.dart';
+import 'package:ascii_art_converter/ascii_art_converter.dart';
 
 void main() async {
   final bytes = await File('example.png').readAsBytes();
@@ -73,7 +72,7 @@ ascii_art -i cat.png -s blocks
 ascii_art -i cat.png -s "@#*+=-:. "   # Custom charset string
 
 # Invert brightness mapping
-ascii_art -i cat.png --invert=false
+ascii_art -i cat.png --no-invert
 
 # Enable ANSI 256-color mode
 ascii_art -i cat.png --color ansi256
@@ -104,27 +103,9 @@ ascii_art --help
 
 ---
 
-
-## 📂 Project Structure
-
-```
-.
-├── bin/
-│   └── ascii_art.dart        # CLI entry point
-├── lib/
-│   ├── ascii_art.dart        # Library entry point
-│   └── src/
-│       ├── ascii_converter.dart      # Core conversion logic
-│       ├── char_set.dart             # Predefined character sets
-│       └── color_mode.dart           # Color mode definitionsl
-├── example/
-│   └── example.dart          # Example usage
-├── test/                     # Unit tests
-├── pubspec.yaml
-└── README.md
-```
-
 <!-- Links -->
 [analyze-badge]: https://github.com/Gj1337/ascii_art/actions/workflows/analyze.yaml/badge.svg
 [analyze-link]: https://github.com/Gj1337/ascii_art/actions/workflows/analyze.yaml
-[version-badge]:https://img.shields.io/badge/version-0.0.4-blue
+[pub-icon]: https://img.shields.io/pub/v/ascii_art_converter.svg
+[pub-link]: https://pub.dev/packages/ascii_art_converter
+[algorithm]: https://github.com/Gj1337/ascii_art_converter/blob/9156cecfbedd814266f37805bbc74e478c51ae4e/doc/how_it_works.md

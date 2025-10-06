@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:test/test.dart';
-import 'package:ascii_art/ascii_art.dart';
+import 'package:ascii_art_converter/ascii_art_converter.dart';
+
 import 'package:image/image.dart' as img;
 
 void main() {
