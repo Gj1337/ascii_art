@@ -1,6 +1,6 @@
 name: ascii_art_converter
 description: Converts images to ASCII art with customizable character sets and colors.
-version: 1.0.1
+version: 1.0.2
 repository: https://github.com/Gj1337/ascii_art_converter
 issue_tracker: https://github.com/Gj1337/ascii_art_converter/issues
 topics:

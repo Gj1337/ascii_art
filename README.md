@@ -1,4 +1,4 @@
-# 🎨 ASCII Art Converter [![Analyze][analyze-badge]][analyze-link] [![pub package][pub-icon]](pub-link)
+# 🎨 ASCII Art Converter [![Analyze][analyze-badge]][analyze-link] [![pub package][pub-icon]](https://pub.dev/packages/ascii_art_converter)
 
 
 A Dart-based ASCII art converter that transforms images into ASCII art. Available as a reusable library and command-line tool.
@@ -11,7 +11,7 @@ A Dart-based ASCII art converter that transforms images into ASCII art. Availabl
 - 📦 Available as both library and CLI tool
 - ⚡ Fast and lightweight Dart implementation
 
-<img width="1742" height="2438"  alt="example" src="https://raw.githubusercontent.com/Gj1337/ascii_art_converter/main/doc/gallery.png" />
+<img alt="example" src="https://raw.githubusercontent.com/Gj1337/ascii_art_converter/main/doc/gallery.png" />
 
 ## 📖 How it works
 
@@ -23,7 +23,7 @@ Check out the [the algorithm](https://github.com/Gj1337/ascii_art_converter/blob
 Add the package to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  ascii_art_converter: ^1.0.0
+  ascii_art_converter: ^1.0.2
 ```
 
 ### As a CLI Tool
@@ -106,5 +106,3 @@ ascii_art --help
 [analyze-badge]: https://github.com/Gj1337/ascii_art/actions/workflows/analyze.yaml/badge.svg
 [analyze-link]: https://github.com/Gj1337/ascii_art/actions/workflows/analyze.yaml
 [pub-icon]: https://img.shields.io/pub/v/ascii_art_converter.svg
-[pub-link]: https://pub.dev/packages/ascii_art_converter
-[algorithm]: https://github.com/Gj1337/ascii_art_converter/blob/9156cecfbedd814266f37805bbc74e478c51ae4e/doc/how_it_works.md
