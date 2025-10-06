@@ -3,16 +3,15 @@
 
 A Dart-based ASCII art converter that transforms images into ASCII art. Available as a reusable library and command-line tool.
 
-
 ## ✨ Features
 
-- 🖼️ Convert images (PNG, JPG, GIF) to ASCII art
+- 🖼️ Convert images to ASCII art
 - ⚙️ Customizable output width and character sets
 - 🎨 Multiple color modes: grayscale, ANSI 256, true color
 - 📦 Available as both library and CLI tool
 - ⚡ Fast and lightweight Dart implementation
 
-<img width="2057" height="1977" alt="example" src="https://github.com/user-attachments/assets/e62fc144-eaaa-4638-84a1-915fd784b1b3" />
+<img width="1742" height="2438"  alt="example" src="https://raw.githubusercontent.com/Gj1337/ascii_art_converter/main/doc/gallery.png" />
 
 ## 📖 How it works
 
