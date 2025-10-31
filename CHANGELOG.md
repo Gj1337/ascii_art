@@ -9,3 +9,7 @@
 ## 1.0.2
 
 - Fix documentation image, links
+
+## 1.1.0
+
+- Add verbose flag

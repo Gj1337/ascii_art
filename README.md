@@ -91,14 +91,15 @@ ascii_art --help
 
 | Option              | Description                                           | Default   |
 |---------------------|-------------------------------------------------------|-----------|
-| `-i, --input`       | Input image file path                                | required  |
+| `-i, --input`       | Input image file path                                 | required  |
 | `-o, --output`      | Output file path (optional, prints to stdout)         | stdout    |
-| `-w, --width`       | Output width (in characters)                         | `80`      |
+| `-w, --width`       | Output width (in characters)                          | `80`      |
 | `-s, --charset`     | Character set (preset name or custom string)          | standard  |
-| `-c, --color`           | Output color mode: grayscale, ansi256, trueColor      | grayscale |
+| `-c, --color`       | Output color mode: grayscale, ansi256, trueColor      | grayscale |
 | `-a, --aspect-ratio`| Character aspect ratio (font width/height ratio)      | `0.5`     |
-| `--[no-]invert `          | Invert brightness mapping (dark ↔ light)              | true      |
-| `-h, --help`        | Show help message                                    |           |
+| `--[no-]invert `    | Invert brightness mapping (dark ↔ light)              | true      |
+| `-v, --verbose`     | Print details during execution                        | false     |
+| `-h, --help`        | Show help message                                     |           |
 
 ---
 

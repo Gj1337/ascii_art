@@ -218,8 +218,9 @@ void main() {
         final bytes = Uint8List.fromList(img.encodePng(image));
 
         final result = await const AsciiArtConverter(
-                width: 3, colorMode: ColorMode.ansi256)
-            .convert(
+          width: 3,
+          colorMode: ColorMode.ansi256,
+        ).convert(
           bytes,
         );
         final lines = result.split('\r\n').where((l) => l.isNotEmpty).toList();

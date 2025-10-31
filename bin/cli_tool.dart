@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:args/args.dart';
 import 'package:ascii_art_converter/ascii_art_converter.dart';
+
+import 'package:image/image.dart' as img;
 
 const toolName = 'ascii_art';
 
@@ -37,7 +40,8 @@ typedef ImageProcessArguments = ({
   String charSet,
   ColorMode colorMode,
   double aspectRatio,
-  bool invert
+  bool invert,
+  bool verbose,
 });
 
 void main(List<String> arguments) async {
@@ -92,6 +96,13 @@ void main(List<String> arguments) async {
       allowedHelp: charPresets,
     )
     ..addFlag(
+      'verbose',
+      abbr: 'v',
+      help: 'Print details during execution',
+      defaultsTo: false,
+      negatable: false,
+    )
+    ..addFlag(
       'help',
       abbr: 'h',
       help: 'Show this help message',
@@ -125,6 +136,7 @@ ImageProcessArguments _processArguments(ArgResults arguments) {
   final colorModeName = arguments['color'] as String;
   final aspectRatio = double.parse(arguments['char-aspect-ratio'] as String);
   final invert = arguments['invert'] as bool;
+  final verbose = arguments['verbose'] as bool;
 
   final file = File(inputPath);
   if (!file.existsSync()) {
@@ -141,7 +153,8 @@ ImageProcessArguments _processArguments(ArgResults arguments) {
     charSet: charSet,
     colorMode: colorMode,
     aspectRatio: aspectRatio,
-    invert: invert
+    invert: invert,
+    verbose: verbose,
   );
 }
 
@@ -153,7 +166,8 @@ Future<void> _processImage(ImageProcessArguments argmunents) async {
     :charSet,
     :colorMode,
     :aspectRatio,
-    :invert
+    :invert,
+    :verbose
   ) = argmunents;
 
   final imageBytes = await file.readAsBytes();
@@ -170,6 +184,35 @@ Future<void> _processImage(ImageProcessArguments argmunents) async {
     outputSink = File(outputPath).openWrite();
   }
 
+  Stopwatch? executionTime;
+
+  if (verbose) {
+    executionTime = Stopwatch()..start();
+    final image = img.decodeImage(imageBytes);
+    if (image == null) {
+      throw const FormatException('Unable to decode image data');
+    }
+    final imageHeight = image.height;
+    final imageWidth = image.width;
+
+    final aspectRatio = imageHeight / imageWidth;
+    final height = (width * aspectRatio * aspectRatio).round();
+
+    print('File: ${file.path} \r\n'
+        'Output: ${outputPath ?? 'stdout'} \r\n'
+        'Img width: $imageWidth \r\n'
+        'Img heigh: $imageHeight \r\n'
+        'Width: $width \r\n'
+        'Height: $height \r\n'
+        'Fonst aspect ratio: $aspectRatio \r\n'
+        'Color mode: $colorMode \r\n'
+        ''
+        'Charset: $charSet \r\n'
+        '');
+
+    executionTime.start();
+  }
+
   try {
     await converter.convertStream(imageBytes).forEach(
           (line) =>
@@ -181,6 +224,10 @@ Future<void> _processImage(ImageProcessArguments argmunents) async {
     }
   } finally {
     await outputSink?.close();
+    executionTime?.stop();
+    if (verbose && executionTime != null) {
+      print('Execution time: ${executionTime.elapsedMilliseconds} ms');
+    }
   }
 }
 
