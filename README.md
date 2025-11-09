@@ -23,7 +23,11 @@ Check out the [the algorithm](https://github.com/Gj1337/ascii_art_converter/blob
 Add the package to your `pubspec.yaml`:
 ```yaml
 dependencies:
-  ascii_art_converter: ^1.0.2
+  ascii_art_converter: ^1.1.0
+```
+or add the library by command: 
+```bash
+flutter pub add ascii_art_converter
 ```
 
 ### As a CLI Tool
